@@ -1,26 +1,25 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"io"
-	"os"
+	//"bufio"
+	//"fmt"
+	//"io"
+	//"os"
 	"time"
+	l4g "github.com/feixiao/log4go"
 )
 
-import l4g "code.google.com/p/log4go"
 
 const (
 	filename = "flw.log"
 )
 
 func main() {
-	// Get a new logger instance
-	log := l4g.NewLogger()
+	// 默认输出在控制台,分析源码我们知道，他支持多个目标输出，添加Filter即可
+	// 一共提供了三个Filter分别在filelog.go,termlog.go,socklog.go中实现
+	log := l4g.NewDefaultLogger(l4g.FINEST)
 
-	// Create a default logger that is logging messages of FINE or higher
-	log.AddFilter("file", l4g.FINE, l4g.NewFileLogWriter(filename, false))
-	log.Close()
+	//log.Close()
 
 	/* Can also specify manually via the following: (these are the defaults) */
 	flw := l4g.NewFileLogWriter(filename, false)
@@ -36,22 +35,8 @@ func main() {
 	log.Info("The time is now: %s", time.Now().Format("15:04:05 MST 2006/01/02"))
 	log.Critical("Time to close out!")
 
+
+	time.Sleep(1*time.Second)  // 等待writer的channel被处理，否则我们看不到输出
 	// Close the log
 	log.Close()
-
-	// Print what was logged to the file (yes, I know I'm skipping error checking)
-	fd, _ := os.Open(filename)
-	in := bufio.NewReader(fd)
-	fmt.Print("Messages logged to file were: (line numbers not included)\n")
-	for lineno := 1; ; lineno++ {
-		line, err := in.ReadString('\n')
-		if err == io.EOF {
-			break
-		}
-		fmt.Printf("%3d:\t%s", lineno, line)
-	}
-	fd.Close()
-
-	// Remove the file so it's not lying around
-	os.Remove(filename)
 }
