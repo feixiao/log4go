@@ -19,7 +19,7 @@ func main() {
 	// 一共提供了三个Filter分别在filelog.go,termlog.go,socklog.go中实现
 	log := l4g.NewDefaultLogger(l4g.FINEST)
 
-	//log.Close()
+	log.Close()
 
 	/* Can also specify manually via the following: (these are the defaults) */
 	flw := l4g.NewFileLogWriter(filename, false)
