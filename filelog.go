@@ -37,6 +37,8 @@ type FileLogWriter struct {
 
 	// Keep old logfiles (.001, .002, etc)
 	rotate bool
+
+	wg WaitGroupWrapper
 }
 
 // This is the FileLogWriter's output method
@@ -46,6 +48,8 @@ func (w *FileLogWriter) LogWrite(rec *LogRecord) {
 
 func (w *FileLogWriter) Close() {
 	close(w.rec)
+	w.wg.Wait()
+
 }
 
 // NewFileLogWriter creates a new LogWriter which writes to the given file and
@@ -72,7 +76,9 @@ func NewFileLogWriter(fname string, rotate bool) *FileLogWriter {
 		return nil
 	}
 
-	go func() {
+
+
+	worker := func() {
 		defer func() {
 			if w.file != nil {
 				fmt.Fprint(w.file, FormatLogRecord(w.trailer, &LogRecord{Created: time.Now()}))
@@ -113,7 +119,9 @@ func NewFileLogWriter(fname string, rotate bool) *FileLogWriter {
 				w.maxsize_cursize += n
 			}
 		}
-	}()
+	}
+
+	w.wg.Wrap(worker)
 
 	return w
 }
