@@ -3,29 +3,26 @@
 package log4go
 
 import (
+	"fmt"
 	"io"
 	"os"
-	"fmt"
 )
 
-
-
-// This is the standard writer that prints to standard output.
+// ConsoleLogWriter is the standard writer that prints to standard output.
 //type ConsoleLogWriter  chan *LogRecord
-
 type ConsoleLogWriter struct {
-	logChan  chan *LogRecord
-	wg       WaitGroupWrapper
-	stdout   io.Writer
+	logChan chan *LogRecord
+	wg      waitGroupWrapper
+	stdout  io.Writer
 }
 
-// This creates a new ConsoleLogWriter
+// NewConsoleLogWriter creates a new ConsoleLogWriter
 func NewConsoleLogWriter() *ConsoleLogWriter {
 	w := &ConsoleLogWriter{
 		logChan: make(chan *LogRecord, LogBufferLength),
-		stdout: os.Stdout,
+		stdout:  os.Stdout,
 	}
-	w.wg.Wrap(func(){w.run()})
+	w.wg.Wrap(func() { w.run() })
 	return w
 }
 
@@ -44,7 +41,7 @@ func (w *ConsoleLogWriter) run() {
 	}
 }
 
-// This is the ConsoleLogWriter's output method.  This will block if the output
+// LogWrite is the ConsoleLogWriter's output method.  This will block if the output
 // buffer is full.
 func (w *ConsoleLogWriter) LogWrite(rec *LogRecord) {
 	w.logChan <- rec

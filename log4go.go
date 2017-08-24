@@ -47,19 +47,19 @@ package log4go
 
 import (
 	"errors"
-	"os"
 	"fmt"
-	"time"
-	"strings"
+	"os"
 	"runtime"
+	"strings"
+	"time"
 )
 
 // Version information
 const (
-	L4G_VERSION = "log4go-v3.0.1"
-	L4G_MAJOR   = 3
-	L4G_MINOR   = 0
-	L4G_BUILD   = 1
+	LgVersion = "log4go-v3.0.1"
+	LgMajor   = 3
+	LgMinor   = 0
+	LgBuild   = 1
 )
 
 /****** Constants ******/
@@ -109,7 +109,7 @@ type LogRecord struct {
 
 /****** LogWriter ******/
 
-// This is an interface for anything that should be able to write logs
+// LogWriter : This is an interface for anything that should be able to write logs
 type LogWriter interface {
 	// This will be called to log a LogRecord message.
 	LogWrite(rec *LogRecord)
@@ -132,7 +132,7 @@ type Filter struct {
 // written.
 type Logger map[string]*Filter
 
-// Create a new logger.
+// NewLogger : Create a new logger.
 //
 // DEPRECATED: Use make(Logger) instead.
 func NewLogger() Logger {
@@ -140,7 +140,7 @@ func NewLogger() Logger {
 	return make(Logger)
 }
 
-// Create a new logger with a "stdout" filter configured to send log messages at
+// NewConsoleLogger : Create a new logger with a "stdout" filter configured to send log messages at
 // or above lvl to standard output.
 //
 // DEPRECATED: use NewDefaultLogger instead.
@@ -151,7 +151,7 @@ func NewConsoleLogger(lvl level) Logger {
 	}
 }
 
-// Create a new logger with a "stdout" filter configured to send log messages at
+// NewDefaultLogger : Create a new logger with a "stdout" filter configured to send log messages at
 // or above lvl to standard output.
 func NewDefaultLogger(lvl level) Logger {
 	return Logger{
@@ -159,7 +159,7 @@ func NewDefaultLogger(lvl level) Logger {
 	}
 }
 
-// Closes all log writers in preparation for exiting the program or a
+// Close : Closes all log writers in preparation for exiting the program or a
 // reconfiguration of logging.  Calling this is not really imperative, unless
 // you want to guarantee that all log messages are written.  Close removes
 // all filters (and thus all LogWriters) from the logger.
@@ -171,7 +171,7 @@ func (log Logger) Close() {
 	}
 }
 
-// Add a new LogWriter to the Logger which will only log messages at lvl or
+// AddFilter : Add a new LogWriter to the Logger which will only log messages at lvl or
 // higher.  This function should not be called from multiple goroutines.
 // Returns the logger for chaining.
 func (log Logger) AddFilter(name string, lvl level, writer LogWriter) Logger {
@@ -263,7 +263,7 @@ func (log Logger) intLogc(lvl level, closure func() string) {
 	}
 }
 
-// Send a log message with manual level, source, and message.
+// Log : Send a log message with manual level, source, and message.
 func (log Logger) Log(lvl level, source, message string) {
 	skip := true
 

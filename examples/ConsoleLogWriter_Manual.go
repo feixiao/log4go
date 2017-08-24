@@ -1,8 +1,6 @@
 package main
 
-import (
-	//"time"
-)
+//"time"
 
 import l4g "github.com/feixiao/log4go"
 
@@ -13,7 +11,7 @@ func main() {
 	log.Debug("Debug")
 	log.Trace("Trace")
 	log.Info("Info")
-	log.Warn("Warn")
+	_ = log.Warn("Warn")
 	log.Error("Error")
 	log.Critical("Critical")
 	// ConsoleLogWriter 使用带缓存的chan进行输出的管理，所以不进行sleep操作

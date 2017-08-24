@@ -4,11 +4,11 @@ import (
 	"sync"
 )
 
-type WaitGroupWrapper struct {
+type waitGroupWrapper struct {
 	sync.WaitGroup
 }
 
-func (w *WaitGroupWrapper) Wrap(cb func()) {
+func (w *waitGroupWrapper) Wrap(cb func()) {
 	w.Add(1)
 	go func() {
 		cb()

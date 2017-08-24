@@ -28,7 +28,7 @@ type xmlLoggerConfig struct {
 	Filter []xmlFilter `xml:"filter"`
 }
 
-// Load XML configuration; see examples/example.xml for documentation
+// LoadConfiguration : Load XML configuration; see examples/example.xml for documentation
 func (log Logger) LoadConfiguration(filename string) {
 	log.Close()
 
@@ -61,7 +61,7 @@ func (log Logger) LoadConfiguration(filename string) {
 			fmt.Fprintf(os.Stderr, "LoadConfiguration: Error: Required attribute %s for filter missing in %s\n", "enabled", filename)
 			bad = true
 		} else {
-			enabled = xmlfilt.Enabled != "false"
+			enabled = xmlfilt.Enabled != strFalse
 		}
 		if len(xmlfilt.Tag) == 0 {
 			fmt.Fprintf(os.Stderr, "LoadConfiguration: Error: Required child <%s> for filter missing in %s\n", "tag", filename)
@@ -187,9 +187,9 @@ func xmlToFileLogWriter(filename string, props []xmlProperty, enabled bool) (*Fi
 		case "maxsize":
 			maxsize = strToNumSuffix(strings.Trim(prop.Value, " \r\n"), 1024)
 		case "daily":
-			daily = strings.Trim(prop.Value, " \r\n") != "false"
+			daily = strings.Trim(prop.Value, " \r\n") != strFalse
 		case "rotate":
-			rotate = strings.Trim(prop.Value, " \r\n") != "false"
+			rotate = strings.Trim(prop.Value, " \r\n") != strFalse
 		default:
 			fmt.Fprintf(os.Stderr, "LoadConfiguration: Warning: Unknown property \"%s\" for file filter in %s\n", prop.Name, filename)
 		}
@@ -231,9 +231,9 @@ func xmlToXMLLogWriter(filename string, props []xmlProperty, enabled bool) (*Fil
 		case "maxsize":
 			maxsize = strToNumSuffix(strings.Trim(prop.Value, " \r\n"), 1024)
 		case "daily":
-			daily = strings.Trim(prop.Value, " \r\n") != "false"
+			daily = strings.Trim(prop.Value, " \r\n") != strFalse
 		case "rotate":
-			rotate = strings.Trim(prop.Value, " \r\n") != "false"
+			rotate = strings.Trim(prop.Value, " \r\n") != strFalse
 		default:
 			fmt.Fprintf(os.Stderr, "LoadConfiguration: Warning: Unknown property \"%s\" for xml filter in %s\n", prop.Name, filename)
 		}

@@ -3,15 +3,10 @@
 package log4go
 
 import (
-	"fmt"
 	"bytes"
+	"fmt"
 	"io"
-)
-
-const (
-	FORMAT_DEFAULT = "[%D %T] [%L] (%S) %M"
-	FORMAT_SHORT   = "[%t %d] [%L] %M"
-	FORMAT_ABBREV  = "[%L] %M"
+	"time"
 )
 
 type formatCacheType struct {
@@ -22,6 +17,7 @@ type formatCacheType struct {
 
 var formatCache = &formatCacheType{}
 
+// FormatLogRecord ： Format Log Record
 // Known format codes:
 // %T - Time (15:04:05 MST)
 // %t - Time (15:04)
@@ -44,20 +40,20 @@ func FormatLogRecord(format string, rec *LogRecord) string {
 	secs := rec.Created.UnixNano() / 1e9
 
 	cache := *formatCache
-	if cache.LastUpdateSeconds != secs {
-		month, day, year := rec.Created.Month(), rec.Created.Day(), rec.Created.Year()
-		hour, minute, second := rec.Created.Hour(), rec.Created.Minute(), rec.Created.Second()
-		zone, _ := rec.Created.Zone()
-		updated := &formatCacheType{
-			LastUpdateSeconds: secs,
-			shortTime:         fmt.Sprintf("%02d:%02d", hour, minute),
-			shortDate:         fmt.Sprintf("%02d/%02d/%02d", month, day, year%100),
-			longTime:          fmt.Sprintf("%02d:%02d:%02d %s", hour, minute, second, zone),
-			longDate:          fmt.Sprintf("%04d/%02d/%02d", year, month, day),
-		}
-		cache = *updated
-		formatCache = updated
+	//	if cache.LastUpdateSeconds != secs {
+	month, day, year := rec.Created.Month(), rec.Created.Day(), rec.Created.Year()
+	hour, minute, second, milliSec := rec.Created.Hour(), rec.Created.Minute(), rec.Created.Second(), time.Duration(rec.Created.Nanosecond())/time.Millisecond
+	zone, _ := rec.Created.Zone()
+	updated := &formatCacheType{
+		LastUpdateSeconds: secs,
+		shortTime:         fmt.Sprintf("%02d:%02d", hour, minute),
+		shortDate:         fmt.Sprintf("%02d/%02d/%02d", month, day, year%100),
+		longTime:          fmt.Sprintf("%02d:%02d:%02d.%03d %s", hour, minute, second, milliSec, zone),
+		longDate:          fmt.Sprintf("%04d/%02d/%02d", year, month, day),
 	}
+	cache = *updated
+	formatCache = updated
+	//	}
 
 	// Split the string into pieces by % signs
 	pieces := bytes.Split([]byte(format), []byte{'%'})
@@ -93,10 +89,10 @@ func FormatLogRecord(format string, rec *LogRecord) string {
 	return out.String()
 }
 
-// This is the standard writer that prints to standard output.
+// FormatLogWriter ： This is the standard writer that prints to standard output.
 type FormatLogWriter chan *LogRecord
 
-// This creates a new FormatLogWriter
+// NewFormatLogWriter creates a new FormatLogWriter
 func NewFormatLogWriter(out io.Writer, format string) FormatLogWriter {
 	records := make(FormatLogWriter, LogBufferLength)
 	go records.run(out, format)
@@ -109,8 +105,7 @@ func (w FormatLogWriter) run(out io.Writer, format string) {
 	}
 }
 
-// This is the FormatLogWriter's output method.  This will block if the output
-// buffer is full.
+// LogWrite is the FormatLogWriter's output method.  This will block if the output buffer is full.
 func (w FormatLogWriter) LogWrite(rec *LogRecord) {
 	w <- rec
 }
